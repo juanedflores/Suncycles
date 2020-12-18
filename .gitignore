@@ -1,0 +1,7 @@
+Pipfile
+Pipfile.lock
+Procfile
+runtime.txt
+requirements.txt
+.prettierrc
+.DS_Store
