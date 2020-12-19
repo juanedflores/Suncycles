@@ -20,7 +20,7 @@ if __name__ == "__main__":
         # r = requests.get('https://suncycles-phages.herokuapp.com/output')
         r = requests.get('http://localhost:5000/output')
         jsondata = r.json()
-        brightness = jsondata["brightness"]
+        brightness = float(jsondata["brightness"])
         print(brightness)
 
         client.send_message("/brightness", brightness)
@@ -29,4 +29,4 @@ if __name__ == "__main__":
         #     print("Ya no hay datos. Reinicia el reloj. Exiting..")
         #     sys.exit()
 
-        # time.sleep()
+        time.sleep(1)
