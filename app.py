@@ -1,11 +1,13 @@
 from flask import Flask
-from flask_cors import CORS, cross_origin
 from flask import send_file
-from urllib.request import Request, urlopen
 from flask import jsonify
 from flask import render_template
+from flask_cors import CORS, cross_origin
+from flask_apscheduler import APScheduler
 from datetime import datetime
 from datetime import timedelta
+from urllib.request import Request, urlopen
+from dotenv import load_dotenv
 import sys
 import platform
 import time
@@ -13,7 +15,7 @@ import random
 import math
 import json
 import re
-from flask_apscheduler import APScheduler
+import os
 
 import cv2
 import base64
@@ -30,14 +32,20 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 app.config["CACHE_TYPE"] = "null"
+app.config["TEMPLATES_AUTO_RELOAD"] = True
 
-now = datetime.now()
+extra_dirs = ['./static/satellite.jpg']
+extra_files = extra_dirs[:]
+
+# load .env containing API keys
+test = load_dotenv()
 
 totaltime = 1200
 cur_date = ""
 cur_time = 0
 brightness = 0
 suncycles_length = 0
+elapsed = 0
 job_status = "inactive"
 current_day_keys = "2020-01-01"
 
@@ -47,10 +55,9 @@ thread = False
 with open('suninfo.json') as f:
     suncycles = json.loads(f.read())
     suncycles_length = len(suncycles)
-    print("json length: " + str(suncycles_length))
 
 
-@app.before_first_request
+# @app.before_first_request
 def activate_job():
 
     def run_job():
@@ -60,16 +67,17 @@ def activate_job():
             thread = True
             print("running job..")
             while True:
-                print("Start recurring task..")
+                print("Getting Satelling Images..")
 
                 img_dimensions = 0.6
                 satellite_date = current_day_keys
+                # satellite_date = "2020-05-01"
 
-                san_antonio_url = "https://api.nasa.gov/planetary/earth/imagery?lon={}&lat={}&date={}&dim={}&api_key=PGV4Ar5ucLhxVvRAErg3c7aApkLqSftfGP8YVv4S".format(
-                    -98.49363, 29.42412, satellite_date, img_dimensions)
+                san_antonio_url = "https://api.nasa.gov/planetary/earth/imagery?lon={}&lat={}&date={}&dim={}&api_key={}".format(
+                    -98.49363, 29.42412, satellite_date, img_dimensions, os.getenv("NASA_API"))
 
-                mexico_city_url = "https://api.nasa.gov/planetary/earth/imagery?lon={}&lat={}&date={}&dim={}&api_key=PGV4Ar5ucLhxVvRAErg3c7aApkLqSftfGP8YVv4S".format(
-                    -99.12766, 19.42847, satellite_date, img_dimensions)
+                mexico_city_url = "https://api.nasa.gov/planetary/earth/imagery?lon={}&lat={}&date={}&dim={}&api_key={}".format(
+                    -99.12766, 19.42847, satellite_date, img_dimensions, os.getenv("NASA_API"))
                 hdr = {
                     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'
                 }
@@ -103,18 +111,76 @@ def activate_job():
 
                 cv2.imwrite('./static/satellite.jpg', combined_img)
 
-                time.sleep(2)
+                time.sleep(10)
 
     thread = Thread(target=run_job)
-    thread.start()
+    # thread.start()
 
 
-@app.route('/')
+def run_job():
+    global cur_date, brightness, job_status, current_day_keys, thread
+    print("new job..")
+    if (thread == False):
+        thread = True
+        print("running job..")
+        while True:
+            print("Getting Satelling Images..")
+
+            img_dimensions = 0.6
+            satellite_date = current_day_keys
+            # satellite_date = "2020-05-01"
+
+            san_antonio_url = "https://api.nasa.gov/planetary/earth/imagery?lon={}&lat={}&date={}&dim={}&api_key={}".format(
+                -98.49363, 29.42412, satellite_date, img_dimensions, os.getenv("NASA_API"))
+
+            mexico_city_url = "https://api.nasa.gov/planetary/earth/imagery?lon={}&lat={}&date={}&dim={}&api_key={}".format(
+                -99.12766, 19.42847, satellite_date, img_dimensions, os.getenv("NASA_API"))
+            hdr = {
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36'
+            }
+
+            req_sa = Request(san_antonio_url, headers=hdr)
+            response_sa = urlopen(req_sa)
+
+            picture_sa = np.asarray(
+                bytearray(response_sa.read()), dtype="uint8")
+            nparr_sa = np.frombuffer(picture_sa, np.uint8)
+            img_sa = cv2.imdecode(nparr_sa, cv2.IMREAD_COLOR)
+
+            height_sa = img_sa.shape[0]
+            width_sa = img_sa.shape[1]
+
+            width_cutoff = width_sa // 2
+
+            s1 = img_sa[:, :width_cutoff]
+
+            req_mx = Request(mexico_city_url, headers=hdr)
+            response_mx = urlopen(req_mx)
+
+            picture_mx = np.asarray(
+                bytearray(response_mx.read()), dtype="uint8")
+            nparr_mx = np.frombuffer(picture_mx, np.uint8)
+            img_mx = cv2.imdecode(nparr_mx, cv2.IMREAD_COLOR)
+
+            s2 = img_mx[:, width_cutoff:]
+
+            combined_img = np.hstack((s1, s2))
+
+            cv2.imwrite('./static/satellite.jpg', combined_img)
+
+            time.sleep(1)
+
+
+@app.route("/", methods=['GET', 'POST'])
+@app.route("/index", methods=['GET', 'POST'])
+@cross_origin()
 def hello():
     global cur_date, brightness, job_status, current_day_keys
+
     # hb = int(translate(brightness, 0.0, 1.0, 0, 255))
     # hexbrightness = "{0:x}{0:x}{0:x}".format(
     #     hb, hb, hb)
+
     return render_template('index.html', title='Status', date=cur_date, status=job_status, result="./static/satellite.jpg")
 
 
@@ -143,28 +209,39 @@ def output_data():
 @app.route('/run-tasks/<year>/<month>/<day>/<hour>/<minute>')
 def run_tasks(year=None, month=None, day=None, hour=None, minute=None):
     app.apscheduler.add_job(func=scheduled_task, trigger='date', run_date=datetime(
-        int(year), int(month), int(day), int(hour), int(minute), 0), args=['text'], id="sun", replace_existing=True)
+        int(year), int(month), int(day), int(hour), int(minute), 0), id="sun", replace_existing=True)
 
     return 'Scheduled several long running tasks.', 200
 
 
-def scheduled_task(task_id):
+@app.route('/test')
+def test():
+    thread_dates = Thread(target=thread_function)
+    thread_dates.start()
+    thread = Thread(target=run_job)
+    thread.start()
+
+    return 'started task', 200
+
+
+def scheduled_task():
     global cur_time, cur_date, brightness, suncycles, suncycles_length, job_status, current_day_keys
     print("starting..")
     job_status = "active!"
-    # x = threading.Thread(target=thread_function, args=(1,))
-
     thread_dates = Thread(target=thread_function)
     thread_dates.start()
+    thread = Thread(target=run_job)
+    thread.start()
 
 
 def thread_function():
-    global cur_time, cur_date, brightness, suncycles, suncycles_length, job_status, current_day_keys
+    global cur_time, cur_date, brightness, suncycles, suncycles_length, job_status, current_day_keys, elapsed
     print("thread function started!")
+    job_status = "active!"
     start = time.time()
     time.process_time()
-    elapsed = 0
     while elapsed < totaltime:
+        # while True:
         elapsed = time.time() - start
         cur_time = math.floor(elapsed)
         decimal = elapsed / totaltime
@@ -173,7 +250,6 @@ def thread_function():
         current_day_keys = list(suncycles.keys())[current_day_index]
         current_day_datetime = datetime.strptime(
             str(current_day_keys), '%Y-%m-%d')
-        print(current_day_keys)
         current_day_values = list(suncycles.values())[current_day_index]
         current_day_sunrise = current_day_values["sunrise"]
         current_day_sunset = current_day_values["sunset"]
@@ -227,11 +303,10 @@ def thread_function():
         else:
             brightness = 0
 
-        print("brightness: " + str(brightness))
-        print("elapsed time: " + str(elapsed))
         time.sleep(0.2)
 
-    job_status = "inactive"
+        print(brightness)
+
     # scheduler.remove_job('sun')
 
 
@@ -248,4 +323,4 @@ def translate(value, leftMin, leftMax, rightMin, rightMax):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(extra_files=extra_files)

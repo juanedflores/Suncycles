@@ -1,46 +1,106 @@
 <html>
+ <head>
+  <link rel="stylesheet" href="/static/main.css" />
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <!-- <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='jquery.js') }}">\x3C/script>')</script> -->
+  <meta charset="UTF-8" />
+  <meta
+   http-equiv="Cache-Control"
+   content="no-cache, no-store, must-revalidate"
+  />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
 
-<head>
-	<link rel="stylesheet" href="/static/main.css" />
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-	<!-- <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='jquery.js') }}">\x3C/script>')</script> -->
-	<meta charset="UTF-8" />
-	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-	<meta http-equiv="Pragma" content="no-cache" />
-	<meta http-equiv="Expires" content="0" />
+  <script type="text/javascript" src="/static/bundle.js"></script>
+  <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
 
-	<style>
-		body {
-			background-color: {
-					{
-					brightness
-				}
-			}
+  <link rel="stylesheet" href="/static/css/uikit.min.css" />
+  <script src="/static/js/uikit.min.js"></script>
+  <script src="/static/js/uikit-icons.min.js"></script>
 
-			;
-			color: blue;
-		}
-	</style>
+  <style>
+   body {
+   	background-color: {
+   			{
+   			brightness
+   		}
+   	}
 
-	<script>
-		$(document).ready(function () {
-			$.ajaxSetup({cache: false});
-			setInterval(function () {
-				$("#face").attr("src", "../static/satellite.jpg?" + new Date().getTime());
-			}, 10000);
-		});
-	</script>
-</head>
+   	;
+   	color: blue;
 
-<body>
-	<h1>{{ title }}</h1>
-	<p>CURRENT TIME: {{ date }}</p>
-	<p>STATUS: {{ status }}</p>
-	<div>
-		{% if result != None %}
-		<img src="{{ result }}" id="face" width="500" />
-		{% endif %}
-	</div>
-</body>
+   }
 
+   video {
+    position: absolute;
+    left: 50%;
+    transform:translateX(-50%);
+    z-index: 1;
+   }
+  </style>
+
+  <script>
+   $(document).ready(function () {
+    $.ajaxSetup({ cache: false });
+    setInterval(function () {
+     $("#face").attr("src", "../static/satellite.jpg?" + new Date().getTime());
+    }, 10000);
+   });
+  </script>
+ </head>
+
+ <body>
+  <!-- <h1>{{ title }}</h1> -->
+  <!-- <p>CURRENT TIME: {{ date }}</p> -->
+  <!-- <p>STATUS: {{ status }}</p> -->
+  <!-- <div> -->
+  <!-- 	{% if result != None %} -->
+  <!-- 	<img src="{{ result }}" id="face" width="500" /> -->
+  <!-- 	{% endif %} -->
+  <!-- </div> -->
+  <!-- <div style="background-image: url('{{ result }}');"> -->
+
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <br />
+  <div class="uk-text-center">
+   <iframe
+    class="uk-padding-large"
+    width="640"
+    height="360"
+    src="https://www.youtube.com/embed/8J1fYrvH1H4?playlist=8J1fYrvH1H4&loop=1"
+    frameborder="0"
+    allow="accelerometer; autoplay; loop; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    uk-video="automute: true"
+   ></iframe>
+   <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+   <iframe
+    class="uk-padding-large"
+    width="640"
+    height="360"
+    src="https://www.youtube.com/embed/8J1fYrvH1H4?playlist=8J1fYrvH1H4&loop=1"
+    frameborder="0"
+    allow="accelerometer; autoplay; loop; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    uk-video="automute: true"
+   ></iframe>
+  </div>
+
+  <canvas id="hydra-canvas" width="1920" height="1080"></canvas>
+ </body>
 </html>
