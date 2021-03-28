@@ -87,7 +87,7 @@ EventEmitter.prototype.getMaxListeners = function getMaxListeners() {
   return $getMaxListeners(this);
 };
 
-// These standalone emit* functions are used to optimize calling of event/
+// These standalone emit* functions are used to optimize calling of event
 // handlers for fast cases because emit() itself often has a variable number of
 // arguments and can be deoptimized because of that. These functions always have
 // the same number of arguments and thus do not get deoptimized, so the code
@@ -7849,194 +7849,10 @@ function init() {
     enableStreamCapture: false
   });
 
-  window.hydra = hydra;
+  // window.hydra = hydra;
 
-  // bin changes
-  toggles = [];
-  states = []; // TODO: Not sure how to use this.
-
-  // handle time.
-  t_snapshot = 0;
-  psnap = 0;
-  nsnap = 0;
-
-  // scroll() direction
-  DIR = 1;
-
-  /**
-   * A boolean assigned to a bin within the array called "states" will be
-   * switched from false to true whenever the entered bin level crosses over the
-   * cutoff (HIGH state). When it crosses the cutoff back down when state is
-   * true, the value will be switched back to false (LOW state).
-   */
-  GET_STATE = bin => {
-    if (a.fft[bin] && !states[bin]) {
-      states[bin] = true; // HIGH
-    } else if (!a.fft[bin] && states[bin]) {
-      states[bin] = false; // LOW
-    }
-    return states[bin];
-  };
-
-  /**
-   * HIGH ([bin number], [returned value if true], [returned value if false])
-   * A function that returns the entered value 'vt' only if
-   * the current state is HIGH. (if state == true)
-   * Returns 'vf' otherwise.
-   */
-  HIGH = (bin, vt, vf) => {
-    st = GET_STATE(bin);
-    if (st) {
-      return vt;
-    } else {
-      return vf;
-    }
-  };
-
-  /**
-   * LOW ([bin number], [returned value if true], [returned value if false])
-   * A function that returns the entered value 'vt' only if
-   * the current state for the entered bin is LOW. (if state == false)
-   * Returns 'vf' otherwise.
-   */
-  LOW = (bin, vt, vf) => {
-    st = GET_STATE(bin);
-    if (!st) {
-      return vt;
-    } else {
-      return vf;
-    }
-  };
-
-  /**
-   * HIGHEST ([bin number], [returned value if true], [returned value if false])
-   * A function that returns the entered value 'vt' only
-   * if the entered bin has the HIGHEST bin level out of all of the
-   * bins AND if it is in a HIGH state. Returns 'vf' otherwise.
-   */
-  HIGHEST = (bin, vt, vf) => {
-    const values = [];
-    for (let i = 0; i < states.length; i++) {
-      values.push(a.fft[i]);
-    }
-    var maxIndex = 0;
-    let max = values[maxIndex];
-    for (let i = 1; i < values.length; i++) {
-      if (values[i] > max) {
-        max = values[i];
-        maxIndex = i;
-      }
-    }
-    st = GET_STATE(bin);
-    if (maxIndex == bin && st) {
-      return vt;
-    } else {
-      return vf;
-    }
-  };
-
-  /**
-   * LOWEST ([bin number], [returned value if true], [returned value if false])
-   * A function that returns the entered value 'vt' only
-   * if the entered bin has the LOWEST bin level out of all of the
-   * bins AND if it is in a HIGH state. Returns 'vf' otherwise.
-   */
-  LOWEST = (bin, vt, vf) => {
-    const values = [];
-    for (let i = 0; i < states.length; i++) {
-      values.push(a.fft[i]);
-    }
-    var minIndex = 0;
-    let min = values[minIndex];
-    for (let i = 1; i < values.length; i++) {
-      if (values[i] < min) {
-        min = values[i];
-        minIndex = i;
-      }
-    }
-    st = GET_STATE(bin);
-    if (minIndex == bin && st) {
-      return vt;
-    } else {
-      return vf;
-    }
-  };
-
-  /**
-   * CHANGE_DIR_SCROLL ([bin number], [hydra's time variable])
-   * A function that changes direction of the Hydra scroll functions each
-   * time it reaches a HIGH state.
-   */
-  CHANGE_DIR_SCROLL = (bin, time) => {
-    let value;
-    lastState = states[bin];
-    st = GET_STATE(bin);
-    if (st && st != lastState) {
-      DIR = -DIR;
-      t_snapshot = time;
-    }
-    let t_increment = (time % 1) - (t_snapshot % 1);
-    if (DIR == 1) {
-      value = time % 1;
-      if (nsnap) {
-        value = 1 - Math.abs(nsnap) + t_increment;
-        psnap = value;
-      }
-    } else if (DIR == -1) {
-      diff = (1 - (t_snapshot % 1)) * -1;
-      if (psnap) {
-        diff = (1 - psnap) * -1;
-      }
-      value = diff + -t_increment;
-      nsnap = value;
-    }
-    return value % 1;
-  };
-
-  ///////////////////////// VISUAL /////////////////////////
-  /**
-   * FADE ([start], [target], [alpha])
-   * A function to fade into a target value from a starting value.
-   * Credit goes to Charlie Roberts for sharing this in the Hydra toplap chat.
-   */
-  FADE = (start, target, alpha) => {
-    let t = target;
-    let s = start;
-    let running = true;
-    return () => {
-      if (running) {
-        s += alpha * (t - s);
-        if (Math.abs(target - s) < 0.01) {
-          running = false;
-        }
-      } else {
-        return target;
-      }
-      return s;
-    };
-  };
-
-FADEGLOBAL = (runningg, alphag) => {
-  if (runningg) {
-    startg += alphag * (targetg - startg);
-    if (Math.abs(targetg - startg) < 0.0001) {
-      runningg = false;
-      startg = 0;
-    }
-  } else {
-    return targetg;
-  }
-  return startg;
-};
-
-  ///////////////////////// ARRAYS /////////////////////////
-  Array.prototype.sample = function () {
-    return this[Math.floor(Math.random() * this.length)];
-  };
-
-
-  // url = 'http://localhost:5000/output';
-  url = 'https://suncycles-phages.herokuapp.com/output';
+  url = 'http://localhost:5000/output';
+  // url = 'https://suncycles-phages.herokuapp.com/output';
   date = ""
   brightness = 0
   progress = 0.0
@@ -8051,26 +7867,26 @@ FADEGLOBAL = (runningg, alphag) => {
     .catch(err => { throw err });
   }, 2000);
 
-  // clearInterval(brightness_interval);
+  // // clearInterval(brightness_interval);
 
-  images_interval = setInterval(() => {
+  // images_interval = setInterval(() => {
 	  // s1.initImage("http://localhost:5000/image?" + new Date().getTime())
-	  s1.initImage("https://suncycles-phages.herokuapp.com/image?" + new Date().getTime())
-  }, 2000);
+	  // // s1.initImage("https://suncycles-phages.herokuapp.com/image?" + new Date().getTime())
+  // }, 2000);
 
-  // clearInterval(images_interval);
+  // // clearInterval(images_interval);
 
-  solid()
-    .add(
-	  src(s1).luma(() => brightness / 2)
-    )
-    .out(o1);
+  // solid()
+  //   .add(
+	  // src(s1).luma(() => brightness / 2)
+  //   )
+  //   .out(o1);
 
-  solid()
-    .add(o1).out(o0)
+  // solid()
+  //   .add(o1).out(o0)
 
-  // src(o0).blend(o1, 0.1).add(o2).out()
-  src(o0).blend(o1, 0.1).out()
+  // // src(o0).blend(o1, 0.1).add(o2).out()
+  // src(o0).blend(o1, 0.1).out()
 
 }
 

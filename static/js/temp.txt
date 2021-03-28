@@ -1,0 +1,9 @@
+
+      // setTimeout(function () {
+      //   // FADE TRANSITIONS
+      //   $(".videoContainerJuanExtra iframe").fadeOut(1000);
+      //   $(".videoContainerIsaacExtra iframe").fadeOut(1000);
+
+      //   // $(".videoContainerJuanMain iframe").fadeIn(4000);
+      //   // $(".videoContainerIsaacMain iframe").fadeIn(7000);
+      // }, 6000);

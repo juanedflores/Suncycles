@@ -1,106 +1,72 @@
 <html>
- <head>
-  <link rel="stylesheet" href="/static/main.css" />
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-  <!-- <script>window.jQuery || document.write('<script src="{{ url_for('static', filename='jquery.js') }}">\x3C/script>')</script> -->
-  <meta charset="UTF-8" />
-  <meta
-   http-equiv="Cache-Control"
-   content="no-cache, no-store, must-revalidate"
-  />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
 
-  <script type="text/javascript" src="/static/bundle.js"></script>
-  <link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+<head>
+	<link rel="stylesheet" href="/static/main.css" />
 
-  <link rel="stylesheet" href="/static/css/uikit.min.css" />
-  <script src="/static/js/uikit.min.js"></script>
-  <script src="/static/js/uikit-icons.min.js"></script>
+	<meta charset="UTF-8" />
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+	<meta http-equiv="Pragma" content="no-cache" />
+	<meta http-equiv="Expires" content="0" />
 
-  <style>
-   body {
-   	background-color: {
-   			{
-   			brightness
-   		}
-   	}
+	<link rel="stylesheet" type="text/css" href="/static/css/style.css" />
+	<link rel="stylesheet" href="/static/css/uikit.min.css" />
 
-   	;
-   	color: blue;
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	<script src="/static/js/uikit.min.js"></script>
+	<script src="/static/js/uikit-icons.min.js"></script>
+	<script type="text/javascript" src="/static/bundle.js"></script>
+	<!-- <script type="text/javascript" src="/static/bundlelocal.js"></script> -->
+	<script src="/static/js/video.js"></script>
+</head>
 
-   }
+<body>
+	<canvas id="hydra-canvas" width="1920" height="1080"></canvas>
+	<!-- <p>CURRENT TIME: {{ date }}</p> -->
 
-   video {
-    position: absolute;
-    left: 50%;
-    transform:translateX(-50%);
-    z-index: 1;
-   }
-  </style>
+	<!-- TEXT INFO -->
+	<div class="uk-child-width-1-2 uk-text-center uk-margin-top" uk-grid>
+		<div class="uk-card" style="color: white; font-size: 40px;">
+			<span style="background-color: black;">
+				29°25'26.832"N, 98°29'37.067"W
+			</span>
+		</div>
+		<div class="uk-card" style="color: white; font-size: 40px;">
+			<span style="background-color: black;">
+				19°23'33.154"N, 99°1'35.215"W
+			</span>
+		</div>
+	</div>
 
-  <script>
-   $(document).ready(function () {
-    $.ajaxSetup({ cache: false });
-    setInterval(function () {
-     $("#face").attr("src", "../static/satellite.jpg?" + new Date().getTime());
-    }, 10000);
-   });
-  </script>
- </head>
+	<!-- YOUTUBE VIDEOS -->
+	<!-- MAIN VIDEOS -->
+	<div id="mainContainer" class="uk-flex-center uk-margin-remove" uk-grid>
+		<div id="childContainer" class="uk-flex-center" uk-grid
+			uk-scrollspy="target: > div; cls: uk-animation-fade; delay: 10000">
+			<!-- JUAN -->
+			<div id="juanmain" class="videoContainerJuanMain">
+				<div id="video_Juan"></div>
+			</div>
 
- <body>
-  <!-- <h1>{{ title }}</h1> -->
-  <!-- <p>CURRENT TIME: {{ date }}</p> -->
-  <!-- <p>STATUS: {{ status }}</p> -->
-  <!-- <div> -->
-  <!-- 	{% if result != None %} -->
-  <!-- 	<img src="{{ result }}" id="face" width="500" /> -->
-  <!-- 	{% endif %} -->
-  <!-- </div> -->
-  <!-- <div style="background-image: url('{{ result }}');"> -->
+			<!-- ISAAC -->
+			<div id="isaacmain" class="videoContainerIsaacMain">
+				<div id="video_Isaac"></div>
+			</div>
+		</div>
+	</div>
 
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <br />
-  <div class="uk-text-center">
-   <iframe
-    class="uk-padding-large"
-    width="640"
-    height="360"
-    src="https://www.youtube.com/embed/8J1fYrvH1H4?playlist=8J1fYrvH1H4&loop=1"
-    frameborder="0"
-    allow="accelerometer; autoplay; loop; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    uk-video="automute: true"
-   ></iframe>
-   <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-   <iframe
-    class="uk-padding-large"
-    width="640"
-    height="360"
-    src="https://www.youtube.com/embed/8J1fYrvH1H4?playlist=8J1fYrvH1H4&loop=1"
-    frameborder="0"
-    allow="accelerometer; autoplay; loop; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-    uk-video="automute: true"
-   ></iframe>
-  </div>
+	<!-- EXTRA VIDEOS -->
+	<div id="mainContainer2" class="uk-flex-center uk-padding uk-margin-remove" uk-grid
+		uk-scrollspy="target: > div; cls: uk-animation-fade; delay: 10000">
+		<div id="childContainer2" class="uk-flex-center" uk-grid>
+			<div id="juanextra" class="videoContainerJuanExtra">
+				<div id="video_Juan_extra1"></div>
+			</div>
 
-  <canvas id="hydra-canvas" width="1920" height="1080"></canvas>
- </body>
+			<div id="isaacextra" class="videoContainerIsaacExtra">
+				<div id="video_Isaac_extra1"></div>
+			</div>
+		</div>
+	</div>
+</body>
+
 </html>
